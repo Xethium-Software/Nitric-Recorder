@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ffmpeg-next = "7.1.0"
 gdk-pixbuf = "0.20.7"
 gtk = { version = "0.9.5", package = "gtk4", features = ["v4_6"] }
 libc = "0.2.169"

@@ -1,6 +1,9 @@
 use gtk::{ApplicationWindow, Button, Fixed, Picture, FileChooserAction, FileChooserDialog, Image, Align};
 use gtk::prelude::*;
 use std::path::Path;
+use gtk::gdk;
+use ffmpeg_next as ffmpeg;
+use std::process::Command;
 
 pub fn tool() {
     // Create application window
@@ -10,7 +13,7 @@ pub fn tool() {
         .default_height(100)
         .resizable(false)
         .build();
-        
+
     // Create layout
     let layout = Fixed::new();
     
@@ -37,7 +40,51 @@ pub fn tool() {
     bGUI.set_size_request(100, 60);
     bGUI.set_child(Some(&iGUI));
 
+    bScreenshot.connect_clicked(|_| {
+        take_screenshot();
+        println!("Screenshot!");
+    });
+
     // Show everything
     tool.set_child(Some(&layout));
     tool.show();
+}
+
+
+pub fn take_screenshot() {
+    let ffmpeg_available = Command::new("which")
+        .arg("ffmpeg")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    if !ffmpeg_available {
+        eprintln!("FFmpeg is not installed or not available in PATH.");
+        return;
+    }
+
+    let output = Command::new("ffmpeg")
+        .args(&[
+            "-f", "x11grab",            // Grab video from the screen
+            "-video_size", "1920x1080", // Screen resolution
+            "-i", ":0.0",               // X11 display input (for Linux)
+            "-frames:v", "1",           // Capture only 1 frame (screenshot)
+            "screenshot.png",           // Output file name
+        ])
+        .output();
+
+    match output {
+        Ok(result) if result.status.success() => {
+            println!("Screenshot saved as screenshot.png");
+        }
+        Ok(result) => {
+            eprintln!(
+                "FFmpeg command failed. STDERR: {}",
+                String::from_utf8_lossy(&result.stderr)
+            );
+        }
+        Err(e) => {
+            eprintln!("Failed to execute FFmpeg: {}", e);
+        }
+    }
 }
