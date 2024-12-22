@@ -2,6 +2,8 @@ use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow, CssProvider};
 use gtk::gdk;
 
+mod Tools;
+
 fn main() {
     // Create a new application
     let app = Application::builder()
@@ -22,6 +24,7 @@ fn main() {
         window.set_opacity(0.3);
         // Show the window
         window.show();
+        Tools::tool();
     });
 
     // Run the application
