@@ -2,6 +2,7 @@ use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow, CssProvider};
 use gtk::gdk;
 
+// Imports Tools
 mod Tools;
 
 fn main() {
@@ -19,9 +20,8 @@ fn main() {
             .default_width(1000)
             .default_height(600)
             .build();
-        //window_style_css();
+        window_style_css();
         window.fullscreen();
-        window.set_opacity(0.3);
         // Show the window
         window.show();
         Tools::tool();
@@ -31,12 +31,22 @@ fn main() {
     app.run();
 }
 
+// Handle Loading Css
 fn window_style_css() {
+    // Get the default display
     let display = gdk::Display::default().expect("Could not get default display.");
+    // Create new CSS provider
     let provider = CssProvider::new();
+    // Set the style provider priority to APPLICATION level so that the application's custom CSS overrides theme styles
     let priority = gtk::STYLE_PROVIDER_PRIORITY_APPLICATION;
 
-    // Load the CSS from src/WindowStyle.css
-    provider.load_from_data(include_str!("./Style/WindowStyle.css"));
-    gtk::style_context_add_provider_for_display(&display, &provider, priority);
+    // Path of the css
+    let css_data = include_str!("./Style/WindowStyle.css");
+    // Checks if the image exist
+    if !css_data.is_empty() {
+        provider.load_from_data(css_data);
+        gtk::style_context_add_provider_for_display(&display, &provider, priority);
+    } else {
+        eprintln!("Warning: The style.css file is empty or not found.");
+    }
 }
